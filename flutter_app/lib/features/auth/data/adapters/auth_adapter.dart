@@ -1,5 +1,5 @@
-import 'package:flutter_app/features/auth/data/models/auth_dto.dart';
-import 'package:flutter_app/features/auth/domain/value_objects/auth_value_objects.dart';
+import 'package:attendify/features/auth/data/models/auth_dto.dart';
+import 'package:attendify/features/auth/domain/value_objects/auth_value_objects.dart';
 
 class AuthAdapter {
   static LoginRequestDto createLoginRequest({

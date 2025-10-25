@@ -1,6 +1,6 @@
-import 'package:flutter_app/core/errors/auth_exceptions.dart';
-import 'package:flutter_app/features/auth/domain/entities/user.dart';
-import 'package:flutter_app/features/auth/domain/value_objects/auth_value_objects.dart';
+import 'package:attendify/core/errors/auth_exceptions.dart';
+import 'package:attendify/features/auth/domain/entities/user.dart';
+import 'package:attendify/features/auth/domain/value_objects/auth_value_objects.dart';
 
 abstract class AuthRepository {
   /// Вход в систему. Throws [AuthException] при ошибке

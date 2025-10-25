@@ -1,6 +1,6 @@
-import 'package:flutter_app/core/errors/auth_exceptions.dart';
+import 'package:attendify/core/errors/auth_exceptions.dart';
 
-import 'package:flutter_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:attendify/features/auth/domain/repositories/auth_repository.dart';
 
 class LogoutUseCase {
   const LogoutUseCase(this._repository);

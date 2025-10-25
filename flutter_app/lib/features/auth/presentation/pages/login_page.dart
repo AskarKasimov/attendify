@@ -1,9 +1,9 @@
+import 'package:attendify/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:attendify/ui_kit/components/app_button.dart';
+import 'package:attendify/ui_kit/components/app_input.dart';
+import 'package:attendify/ui_kit/theme/app_colors.dart';
+import 'package:attendify/ui_kit/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:flutter_app/ui_kit/components/app_button.dart';
-import 'package:flutter_app/ui_kit/components/app_input.dart';
-import 'package:flutter_app/ui_kit/theme/app_colors.dart';
-import 'package:flutter_app/ui_kit/theme/app_text_styles.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 

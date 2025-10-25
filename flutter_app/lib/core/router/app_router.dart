@@ -1,9 +1,9 @@
+import 'package:attendify/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:attendify/features/auth/presentation/pages/login_page.dart';
+import 'package:attendify/features/auth/presentation/pages/register_page.dart';
+import 'package:attendify/features/auth/presentation/pages/splash_screen.dart';
+import 'package:attendify/features/home/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:flutter_app/features/auth/presentation/pages/login_page.dart';
-import 'package:flutter_app/features/auth/presentation/pages/register_page.dart';
-import 'package:flutter_app/features/auth/presentation/pages/splash_screen.dart';
-import 'package:flutter_app/features/home/presentation/pages/home_page.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {

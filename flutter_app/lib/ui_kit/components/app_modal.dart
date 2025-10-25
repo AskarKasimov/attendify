@@ -1,7 +1,7 @@
+import 'package:attendify/ui_kit/components/app_button.dart';
+import 'package:attendify/ui_kit/theme/app_colors.dart';
+import 'package:attendify/ui_kit/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/ui_kit/components/app_button.dart';
-import 'package:flutter_app/ui_kit/theme/app_colors.dart';
-import 'package:flutter_app/ui_kit/theme/app_text_styles.dart';
 
 /// стандартная модалка
 class AppDialog extends StatelessWidget {

@@ -1,9 +1,9 @@
-import 'package:flutter_app/core/errors/auth_exceptions.dart';
-import 'package:flutter_app/features/auth/domain/entities/user.dart';
-import 'package:flutter_app/features/auth/domain/usecases/get_current_user_usecase.dart';
-import 'package:flutter_app/features/auth/domain/usecases/login_usecase.dart';
-import 'package:flutter_app/features/auth/domain/usecases/logout_usecase.dart';
-import 'package:flutter_app/features/auth/domain/usecases/register_usecase.dart';
+import 'package:attendify/core/errors/auth_exceptions.dart';
+import 'package:attendify/features/auth/domain/entities/user.dart';
+import 'package:attendify/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:attendify/features/auth/domain/usecases/login_usecase.dart';
+import 'package:attendify/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:attendify/features/auth/domain/usecases/register_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'auth_event.dart';

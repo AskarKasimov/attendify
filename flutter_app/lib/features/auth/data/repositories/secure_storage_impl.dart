@@ -1,4 +1,4 @@
-import 'package:flutter_app/features/auth/domain/repositories/secure_storage.dart';
+import 'package:attendify/features/auth/domain/repositories/secure_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageImpl implements SecureStorage {

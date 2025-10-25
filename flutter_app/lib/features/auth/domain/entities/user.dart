@@ -1,4 +1,4 @@
-import 'package:flutter_app/features/auth/domain/value_objects/auth_value_objects.dart';
+import 'package:attendify/features/auth/domain/value_objects/auth_value_objects.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'user.freezed.dart';

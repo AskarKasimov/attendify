@@ -1,8 +1,8 @@
+import 'package:attendify/core/di/injection_container.dart' as di;
+import 'package:attendify/core/router/app_router.dart';
+import 'package:attendify/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:attendify/ui_kit/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/core/di/injection_container.dart' as di;
-import 'package:flutter_app/core/router/app_router.dart';
-import 'package:flutter_app/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:flutter_app/ui_kit/theme/app_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() async {

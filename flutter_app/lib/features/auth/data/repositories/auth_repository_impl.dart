@@ -1,10 +1,10 @@
-import 'package:flutter_app/core/errors/auth_exceptions.dart';
-import 'package:flutter_app/features/auth/data/adapters/user_adapter.dart';
-import 'package:flutter_app/features/auth/data/models/user_dto.dart';
-import 'package:flutter_app/features/auth/domain/entities/user.dart';
-import 'package:flutter_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:flutter_app/features/auth/domain/repositories/secure_storage.dart';
-import 'package:flutter_app/features/auth/domain/value_objects/auth_value_objects.dart';
+import 'package:attendify/core/errors/auth_exceptions.dart';
+import 'package:attendify/features/auth/data/adapters/user_adapter.dart';
+import 'package:attendify/features/auth/data/models/user_dto.dart';
+import 'package:attendify/features/auth/domain/entities/user.dart';
+import 'package:attendify/features/auth/domain/repositories/auth_repository.dart';
+import 'package:attendify/features/auth/domain/repositories/secure_storage.dart';
+import 'package:attendify/features/auth/domain/value_objects/auth_value_objects.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl({required final SecureStorage secureStorage})
