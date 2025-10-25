@@ -1,4 +1,4 @@
-import 'package:attendify/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:attendify/gen/assets.gen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,14 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Логотип строго по центру экрана (как в нативном splash)
-          Center(
-            child: Assets.icons.icon.image(
-              width: 255,
-              height: 255,
-            ),
-          ),
-          // Спиннер в нижней части экрана
+          Center(child: Assets.icons.icon.image(width: 255, height: 255)),
           const Positioned(
             left: 0,
             right: 0,

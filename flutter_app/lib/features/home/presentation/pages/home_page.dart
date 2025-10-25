@@ -1,4 +1,4 @@
-import 'package:attendify/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:attendify/ui_kit/components/app_components.dart';
 import 'package:attendify/ui_kit/theme/app_colors.dart';
 import 'package:attendify/ui_kit/theme/app_text_styles.dart';

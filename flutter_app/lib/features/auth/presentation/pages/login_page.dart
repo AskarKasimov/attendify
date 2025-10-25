@@ -1,4 +1,6 @@
-import 'package:attendify/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:attendify/core/di/injection_container.dart' as di;
+import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:attendify/features/auth/presentation/bloc/logic_bloc/login_bloc.dart';
 import 'package:attendify/ui_kit/components/app_button.dart';
 import 'package:attendify/ui_kit/components/app_input.dart';
 import 'package:attendify/ui_kit/theme/app_colors.dart';
@@ -7,32 +9,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  Widget build(final BuildContext context) => BlocProvider(
+    create: (final context) => di.sl<LoginBloc>(),
+    child: const _LoginPageContent(),
+  );
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+class _LoginPageContent extends StatelessWidget {
+  const _LoginPageContent();
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  void _onLoginPressed() {
-    context.read<AuthBloc>().add(
-      Login(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      ),
-    );
+  void _onLoginPressed(final BuildContext context) {
+    context.read<LoginBloc>().add(const LoginSubmitted());
   }
 
   @override
@@ -41,139 +32,143 @@ class _LoginPageState extends State<LoginPage> {
     body: SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Logo/Title
-              Text(
-                'Attendify',
-                style: AppTextStyles.displaySmall.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Attendify',
+              style: AppTextStyles.displaySmall.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Войдите в свою учетную запись',
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Войдите в свою учетную запись',
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: AppColors.textSecondary,
               ),
-              const SizedBox(height: 48),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 48),
 
-              // Email field
-              AppTextField(
-                controller: _emailController,
+            BlocBuilder<LoginBloc, LoginState>(
+              builder: (final context, final state) => AppTextField(
+                controller: TextEditingController(text: state.email),
+                onChanged: (final value) =>
+                    context.read<LoginBloc>().add(LoginEmailChanged(value)),
                 label: 'Email',
                 placeholder: 'Введите ваш email',
                 keyboardType: TextInputType.emailAddress,
                 prefixIcon: Icons.email_outlined,
               ),
-              const SizedBox(height: 16),
+            ),
+            const SizedBox(height: 16),
 
-              // Password field
-              AppTextField(
-                controller: _passwordController,
+            BlocBuilder<LoginBloc, LoginState>(
+              builder: (final context, final state) => AppTextField(
+                controller: TextEditingController(text: state.password),
+                onChanged: (final value) =>
+                    context.read<LoginBloc>().add(LoginPasswordChanged(value)),
                 label: 'Пароль',
                 placeholder: 'Введите ваш пароль',
                 obscureText: true,
                 prefixIcon: Icons.lock_outline,
               ),
-              const SizedBox(height: 32),
+            ),
+            const SizedBox(height: 32),
 
-              // Login button
-              BlocConsumer<AuthBloc, AuthState>(
-                listener: (final context, final state) {
-                  if (state is AuthUnauthenticated &&
-                      state.errorMessage != null) {
+            BlocConsumer<LoginBloc, LoginState>(
+              listener: (final context, final state) {
+                switch (state) {
+                  case LoginFailure():
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(state.errorMessage!),
+                        content: Text(state.message),
                         backgroundColor: AppColors.error,
                       ),
                     );
-                  } else if (state is AuthAuthenticated) {
-                    // После успешного логина переходим на главную
+                  case LoginSuccess():
+                    // глобальный auth bloc
+                    context.read<AuthBloc>().add(AuthenticateUser(state.user));
                     context.go('/home');
-                  }
-                },
-                builder: (final context, final state) => AppButton.primary(
-                  onPressed: state is AuthLoading ? null : _onLoginPressed,
-                  text: 'Войти',
-                  isLoading: state is AuthLoading,
-                  isFullWidth: true,
-                ),
+                  default:
+                    break;
+                }
+              },
+              builder: (final context, final state) => AppButton.primary(
+                onPressed: state is LoginLoading
+                    ? null
+                    : () => _onLoginPressed(context),
+                text: 'Войти',
+                isLoading: state is LoginLoading,
+                isFullWidth: true,
               ),
-              const SizedBox(height: 16),
+            ),
+            const SizedBox(height: 16),
 
-              // Test credentials hint
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Тестовые учетные данные:',
-                      style: AppTextStyles.labelLarge.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Email: test@test.com\nПароль: 123456',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'или\nEmail: admin@admin.com\nПароль: admin123',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.border),
               ),
-              const SizedBox(height: 24),
-
-              // Register link
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Нет аккаунта? ',
-                    style: AppTextStyles.bodyMedium.copyWith(
+                    'Тестовые учетные данные:',
+                    style: AppTextStyles.labelLarge.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Email: test@test.com\nПароль: 123456',
+                    style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () async {
-                      await context.push('/register');
-                    },
-                    child: Text(
-                      'Зарегистрироваться',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'или\nEmail: admin@admin.com\nПароль: admin123',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Нет аккаунта? ',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    await context.push('/register');
+                  },
+                  child: Text(
+                    'Зарегистрироваться',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     ),

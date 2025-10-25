@@ -1,4 +1,4 @@
-import 'package:attendify/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:attendify/features/auth/presentation/pages/login_page.dart';
 import 'package:attendify/features/auth/presentation/pages/register_page.dart';
 import 'package:attendify/features/auth/presentation/pages/splash_screen.dart';

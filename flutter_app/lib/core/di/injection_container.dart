@@ -6,7 +6,9 @@ import 'package:attendify/features/auth/domain/usecases/get_current_user_usecase
 import 'package:attendify/features/auth/domain/usecases/login_usecase.dart';
 import 'package:attendify/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:attendify/features/auth/domain/usecases/register_usecase.dart';
-import 'package:attendify/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:attendify/features/auth/presentation/bloc/logic_bloc/login_bloc.dart';
+import 'package:attendify/features/auth/presentation/bloc/register_bloc/register_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 
@@ -28,11 +30,8 @@ Future<void> init() async {
     ..registerLazySingleton(() => RegisterUseCase(sl()))
     ..registerLazySingleton(() => GetCurrentUserUseCase(sl()))
     ..registerFactory(
-      () => AuthBloc(
-        loginUseCase: sl(),
-        logoutUseCase: sl(),
-        registerUseCase: sl(),
-        getCurrentUserUseCase: sl(),
-      ),
-    );
+      () => AuthBloc(logoutUseCase: sl(), getCurrentUserUseCase: sl()),
+    )
+    ..registerFactory(() => LoginBloc(loginUseCase: sl()))
+    ..registerFactory(() => RegisterBloc(registerUseCase: sl()));
 }

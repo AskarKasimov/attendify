@@ -1,4 +1,6 @@
-import 'package:attendify/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:attendify/core/di/injection_container.dart' as di;
+import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:attendify/features/auth/presentation/bloc/register_bloc/register_bloc.dart';
 import 'package:attendify/ui_kit/components/app_button.dart';
 import 'package:attendify/ui_kit/components/app_input.dart';
 import 'package:attendify/ui_kit/theme/app_colors.dart';
@@ -7,48 +9,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-class RegisterPage extends StatefulWidget {
+class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  Widget build(final BuildContext context) => BlocProvider(
+    create: (final context) => di.sl<RegisterBloc>(),
+    child: const _RegisterPageContent(),
+  );
 }
 
-class _RegisterPageState extends State<RegisterPage> {
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+class _RegisterPageContent extends StatelessWidget {
+  const _RegisterPageContent();
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
-
-  void _onRegisterPressed() {
-    // Простая проверка совпадения паролей на UI уровне
-    if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Пароли не совпадают'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    context.read<AuthBloc>().add(
-      Register(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-        name: _nameController.text.trim(),
-      ),
-    );
+  void _onRegisterPressed(final BuildContext context) {
+    context.read<RegisterBloc>().add(const RegisterSubmitted());
   }
 
   @override
@@ -71,106 +46,124 @@ class _RegisterPageState extends State<RegisterPage> {
     body: SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 32),
 
-                      // Header
-                      Text(
-                        'Создайте аккаунт',
-                        style: AppTextStyles.headlineSmall.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
+                    Text(
+                      'Создайте аккаунт',
+                      style: AppTextStyles.headlineSmall.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Заполните данные для регистрации',
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                        textAlign: TextAlign.center,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Заполните данные для регистрации',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppColors.textSecondary,
                       ),
-                      const SizedBox(height: 40),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 40),
 
-                      // Name field
-                      AppTextField(
-                        controller: _nameController,
+                    BlocBuilder<RegisterBloc, RegisterState>(
+                      builder: (final context, final state) => AppTextField(
+                        controller: TextEditingController(text: state.name),
+                        onChanged: (final value) => context
+                            .read<RegisterBloc>()
+                            .add(RegisterNameChanged(value)),
                         label: 'Имя',
                         placeholder: 'Введите ваше имя',
                         prefixIcon: Icons.person_outline,
                       ),
-                      const SizedBox(height: 16),
+                    ),
+                    const SizedBox(height: 16),
 
-                      // Email field
-                      AppTextField(
-                        controller: _emailController,
+                    BlocBuilder<RegisterBloc, RegisterState>(
+                      builder: (final context, final state) => AppTextField(
+                        controller: TextEditingController(text: state.email),
+                        onChanged: (final value) => context
+                            .read<RegisterBloc>()
+                            .add(RegisterEmailChanged(value)),
                         label: 'Email',
                         placeholder: 'Введите ваш email',
                         keyboardType: TextInputType.emailAddress,
                         prefixIcon: Icons.email_outlined,
                       ),
-                      const SizedBox(height: 16),
+                    ),
+                    const SizedBox(height: 16),
 
-                      // Password field
-                      AppTextField(
-                        controller: _passwordController,
+                    BlocBuilder<RegisterBloc, RegisterState>(
+                      builder: (final context, final state) => AppTextField(
+                        controller: TextEditingController(text: state.password),
+                        onChanged: (final value) => context
+                            .read<RegisterBloc>()
+                            .add(RegisterPasswordChanged(value)),
                         label: 'Пароль',
                         placeholder: 'Создайте пароль',
                         obscureText: true,
                         prefixIcon: Icons.lock_outline,
                       ),
-                      const SizedBox(height: 16),
+                    ),
+                    const SizedBox(height: 16),
 
-                      // Confirm password field
-                      AppTextField(
-                        controller: _confirmPasswordController,
+                    BlocBuilder<RegisterBloc, RegisterState>(
+                      builder: (final context, final state) => AppTextField(
+                        controller: TextEditingController(
+                          text: state.confirmPassword,
+                        ),
+                        onChanged: (final value) => context
+                            .read<RegisterBloc>()
+                            .add(RegisterConfirmPasswordChanged(value)),
                         label: 'Подтвердите пароль',
                         placeholder: 'Повторите пароль',
                         obscureText: true,
                         prefixIcon: Icons.lock_outline,
                       ),
-                      const SizedBox(height: 32),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
                 ),
               ),
+            ),
 
-              // Register button
-              BlocConsumer<AuthBloc, AuthState>(
-                listener: (final context, final state) {
-                  if (state is AuthUnauthenticated &&
-                      state.errorMessage != null) {
+            BlocConsumer<RegisterBloc, RegisterState>(
+              listener: (final context, final state) {
+                switch (state) {
+                  case RegisterFailure():
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(state.errorMessage!),
+                        content: Text(state.message),
                         backgroundColor: AppColors.error,
                       ),
                     );
-                  } else if (state is AuthAuthenticated) {
-                    // После успешной регистрации переходим на главную
+                  case RegisterSuccess():
+                    // глобальный auth bloc
+                    context.read<AuthBloc>().add(AuthenticateUser(state.user));
                     context.go('/home');
-                  }
-                },
-                builder: (final context, final state) => AppButton.outline(
-                  onPressed: state is AuthLoading ? null : _onRegisterPressed,
-                  text: 'Зарегистрироваться',
-                  isLoading: state is AuthLoading,
-                  isFullWidth: true,
-                ),
+                  default:
+                    break;
+                }
+              },
+              builder: (final context, final state) => AppButton.outline(
+                onPressed: state is RegisterLoading
+                    ? null
+                    : () => _onRegisterPressed(context),
+                text: 'Зарегистрироваться',
+                isLoading: state is RegisterLoading,
+                isFullWidth: true,
               ),
-              const SizedBox(height: 24),
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+          ],
         ),
       ),
     ),
