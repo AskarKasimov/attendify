@@ -38,8 +38,8 @@ class _SplashScreenState extends State<SplashScreen> {
           // Логотип строго по центру экрана (как в нативном splash)
           Center(
             child: Assets.icons.icon.image(
-              width: 260,
-              height: 260,
+              width: 255,
+              height: 255,
             ),
           ),
           // Спиннер в нижней части экрана

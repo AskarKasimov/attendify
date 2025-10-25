@@ -42,6 +42,12 @@ flutter_gen:
     image: true
     flutter_svg: true
 
+flutter_launcher_icons:
+  image_path: "assets/icons/icon.png"
+  remove_alpha_ios: true
+  android: true
+  ios: true
+
 flutter_native_splash:
   color: "#ffffff"
   image: "assets/icons/icon.png"
