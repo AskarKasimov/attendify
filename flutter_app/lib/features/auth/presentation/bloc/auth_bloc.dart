@@ -66,7 +66,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = await _loginUseCase(email: email, password: password);
       emit(AuthAuthenticated(user));
     } catch (e) {
-      emit(AuthError(_getErrorMessage(e)));
+      emit(AuthUnauthenticated(_getErrorMessage(e)));
     }
   }
 
@@ -86,7 +86,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       emit(AuthAuthenticated(user));
     } catch (e) {
-      emit(AuthError(_getErrorMessage(e)));
+      emit(AuthUnauthenticated(_getErrorMessage(e)));
     }
   }
 
@@ -97,7 +97,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _logoutUseCase();
       emit(const AuthUnauthenticated());
     } catch (e) {
-      emit(AuthError(_getErrorMessage(e)));
+      emit(AuthUnauthenticated(_getErrorMessage(e)));
     }
   }
 

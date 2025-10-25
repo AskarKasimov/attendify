@@ -55,7 +55,17 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(final BuildContext context) => Scaffold(
     backgroundColor: AppColors.background,
     appBar: AppBar(
-      title: const Text('Регистрация'),
+      leading: IconButton(
+        onPressed: () async {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            await context.push('/login');
+          }
+        },
+        icon: const Icon(Icons.arrow_back_ios),
+      ),
+      title: const Text('Вернуться ко входу'),
       backgroundColor: AppColors.surface,
     ),
     body: SafeArea(
@@ -138,45 +148,25 @@ class _RegisterPageState extends State<RegisterPage> {
               // Register button
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (final context, final state) {
-                  if (state is AuthError) {
+                  if (state is AuthUnauthenticated &&
+                      state.errorMessage != null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(state.message),
+                        content: Text(state.errorMessage!),
                         backgroundColor: AppColors.error,
                       ),
                     );
+                  } else if (state is AuthAuthenticated) {
+                    // После успешной регистрации переходим на главную
+                    context.go('/home');
                   }
                 },
-                builder: (final context, final state) => AppButton.primary(
+                builder: (final context, final state) => AppButton.outline(
                   onPressed: state is AuthLoading ? null : _onRegisterPressed,
                   text: 'Зарегистрироваться',
                   isLoading: state is AuthLoading,
                   isFullWidth: true,
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              // Login link
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Уже есть аккаунт? ',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: context.pop,
-                    child: Text(
-                      'Войти',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
               ),
               const SizedBox(height: 24),
             ],

@@ -89,13 +89,17 @@ class _LoginPageState extends State<LoginPage> {
               // Login button
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (final context, final state) {
-                  if (state is AuthError) {
+                  if (state is AuthUnauthenticated &&
+                      state.errorMessage != null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(state.message),
+                        content: Text(state.errorMessage!),
                         backgroundColor: AppColors.error,
                       ),
                     );
+                  } else if (state is AuthAuthenticated) {
+                    // После успешного логина переходим на главную
+                    context.go('/home');
                   }
                 },
                 builder: (final context, final state) => AppButton.primary(
@@ -155,8 +159,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      context.go('/register');
+                    onTap: () async {
+                      await context.push('/register');
                     },
                     child: Text(
                       'Зарегистрироваться',
