@@ -1,6 +1,13 @@
+import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:attendify/shared/di/injection_container.dart' as di;
+import 'package:attendify/shared/router/app_router.dart';
+import 'package:attendify/ui_kit/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await di.init();
   runApp(const MyApp());
 }
 
@@ -8,51 +15,17 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(final BuildContext context) => MaterialApp(
-    title: 'Flutter Demo',
-    theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-    ),
-    home: const MyHomePage(title: 'Flutter Demo Home Page'),
-  );
-}
+  Widget build(final BuildContext context) {
+    final authBloc = di.sl<AuthBloc>()..add(const CheckAuthStatus());
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({required this.title, super.key});
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(final BuildContext context) => Scaffold(
-    appBar: AppBar(
-      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      title: Text(widget.title),
-    ),
-    body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          const Text('You have pushed the button this many times:'),
-          Text('$_counter', style: Theme.of(context).textTheme.headlineMedium),
-        ],
+    return BlocProvider.value(
+      value: authBloc,
+      child: MaterialApp.router(
+        title: 'Attendify',
+        theme: AppTheme.light,
+        routerConfig: AppRouter.createRouter(authBloc),
+        debugShowCheckedModeBanner: false,
       ),
-    ),
-    floatingActionButton: FloatingActionButton(
-      onPressed: _incrementCounter,
-      tooltip: 'Increment',
-      child: const Icon(Icons.add),
-    ),
-  );
+    );
+  }
 }

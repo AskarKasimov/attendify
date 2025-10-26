@@ -1,6 +1,6 @@
+import 'package:attendify/ui_kit/components/app_components.dart';
+import 'package:attendify/ui_kit/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/ui_kit/components/app_components.dart';
-import 'package:flutter_app/ui_kit/theme/app_colors.dart';
 
 class AppButton extends StatelessWidget {
   AppButton.primary({

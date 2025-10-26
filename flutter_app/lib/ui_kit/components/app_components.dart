@@ -1,5 +1,5 @@
+import 'package:attendify/ui_kit/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/ui_kit/theme/app_colors.dart';
 
 /// спиннер
 class AppLoadingIndicator extends StatelessWidget {

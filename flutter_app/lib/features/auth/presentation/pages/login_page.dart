@@ -1,0 +1,185 @@
+import 'package:attendify/shared/di/injection_container.dart' as di;
+import 'package:attendify/features/auth/domain/value_objects/auth_value_objects.dart';
+import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:attendify/features/auth/presentation/bloc/logic_bloc/login_bloc.dart';
+import 'package:attendify/ui_kit/components/app_button.dart';
+import 'package:attendify/ui_kit/components/app_input.dart';
+import 'package:attendify/ui_kit/theme/app_colors.dart';
+import 'package:attendify/ui_kit/theme/app_text_styles.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+
+  @override
+  Widget build(final BuildContext context) => BlocProvider(
+    create: (final context) => di.sl<LoginBloc>(),
+    child: const _LoginPageContent(),
+  );
+}
+
+class _LoginPageContent extends StatelessWidget {
+  const _LoginPageContent();
+
+  void _onLoginPressed(final BuildContext context) {
+    context.read<LoginBloc>().add(const LoginSubmitted());
+  }
+
+  @override
+  Widget build(final BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
+    body: SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Attendify',
+              style: AppTextStyles.displaySmall.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Войдите в свою учетную запись',
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 48),
+
+            BlocBuilder<LoginBloc, LoginState>(
+              builder: (final context, final state) => AppTextField(
+                controller: TextEditingController(text: state.email),
+                onChanged: (final value) =>
+                    context.read<LoginBloc>().add(LoginEmailChanged(value)),
+                label: 'Email',
+                placeholder: 'Введите ваш email',
+                keyboardType: TextInputType.emailAddress,
+                prefixIcon: Icons.email_outlined,
+                errorText:
+                    (state.email.isNotEmpty || state.showValidationErrors)
+                    ? Email.validate(state.email)
+                    : null,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            BlocBuilder<LoginBloc, LoginState>(
+              builder: (final context, final state) => AppTextField(
+                controller: TextEditingController(text: state.password),
+                onChanged: (final value) =>
+                    context.read<LoginBloc>().add(LoginPasswordChanged(value)),
+                label: 'Пароль',
+                placeholder: 'Введите ваш пароль',
+                obscureText: true,
+                prefixIcon: Icons.lock_outline,
+                errorText:
+                    (state.password.isNotEmpty || state.showValidationErrors)
+                    ? Password.validate(state.password)
+                    : null,
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            BlocConsumer<LoginBloc, LoginState>(
+              listener: (final context, final state) {
+                switch (state) {
+                  case LoginFailure():
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(state.message),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  case LoginSuccess():
+                    // глобальный auth bloc
+                    context.read<AuthBloc>().add(AuthenticateUser(state.user));
+                    context.go('/home');
+                  default:
+                    break;
+                }
+              },
+              builder: (final context, final state) => AppButton.primary(
+                onPressed: state is LoginLoading
+                    ? null
+                    : () => _onLoginPressed(context),
+                text: 'Войти',
+                isLoading: state is LoginLoading,
+                isFullWidth: true,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Тестовые учетные данные:',
+                    style: AppTextStyles.labelLarge.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Email: test@test.com\nПароль: 123456',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'или\nEmail: admin@admin.com\nПароль: admin123',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Нет аккаунта? ',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    await context.push('/register');
+                  },
+                  child: Text(
+                    'Зарегистрироваться',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
