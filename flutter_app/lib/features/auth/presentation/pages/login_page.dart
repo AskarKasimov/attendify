@@ -1,4 +1,5 @@
-import 'package:attendify/core/di/injection_container.dart' as di;
+import 'package:attendify/shared/di/injection_container.dart' as di;
+import 'package:attendify/features/auth/domain/value_objects/auth_value_objects.dart';
 import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:attendify/features/auth/presentation/bloc/logic_bloc/login_bloc.dart';
 import 'package:attendify/ui_kit/components/app_button.dart';
@@ -63,6 +64,10 @@ class _LoginPageContent extends StatelessWidget {
                 placeholder: 'Введите ваш email',
                 keyboardType: TextInputType.emailAddress,
                 prefixIcon: Icons.email_outlined,
+                errorText:
+                    (state.email.isNotEmpty || state.showValidationErrors)
+                    ? Email.validate(state.email)
+                    : null,
               ),
             ),
             const SizedBox(height: 16),
@@ -76,6 +81,10 @@ class _LoginPageContent extends StatelessWidget {
                 placeholder: 'Введите ваш пароль',
                 obscureText: true,
                 prefixIcon: Icons.lock_outline,
+                errorText:
+                    (state.password.isNotEmpty || state.showValidationErrors)
+                    ? Password.validate(state.password)
+                    : null,
               ),
             ),
             const SizedBox(height: 32),

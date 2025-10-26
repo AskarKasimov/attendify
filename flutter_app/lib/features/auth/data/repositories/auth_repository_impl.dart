@@ -1,7 +1,7 @@
-import 'package:attendify/core/errors/auth_exceptions.dart';
 import 'package:attendify/features/auth/data/adapters/user_adapter.dart';
 import 'package:attendify/features/auth/data/models/user_dto.dart';
 import 'package:attendify/features/auth/domain/entities/user.dart';
+import 'package:attendify/features/auth/domain/errors/auth_exception.dart';
 import 'package:attendify/features/auth/domain/repositories/auth_repository.dart';
 import 'package:attendify/features/auth/domain/repositories/secure_storage.dart';
 import 'package:attendify/features/auth/domain/value_objects/auth_value_objects.dart';

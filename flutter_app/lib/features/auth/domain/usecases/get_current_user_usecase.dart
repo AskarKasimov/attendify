@@ -1,6 +1,5 @@
-import 'package:attendify/core/errors/auth_exceptions.dart';
-
 import 'package:attendify/features/auth/domain/entities/user.dart';
+import 'package:attendify/features/auth/domain/errors/auth_exception.dart';
 import 'package:attendify/features/auth/domain/repositories/auth_repository.dart';
 
 class GetCurrentUserUseCase {

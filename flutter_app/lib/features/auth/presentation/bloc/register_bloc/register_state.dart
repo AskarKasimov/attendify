@@ -6,17 +6,25 @@ sealed class RegisterState {
     required this.email,
     required this.password,
     required this.confirmPassword,
+    this.showValidationErrors = false,
   });
 
   final String name;
   final String email;
   final String password;
   final String confirmPassword;
+  final bool showValidationErrors;
 }
 
 final class RegisterInitial extends RegisterState {
   const RegisterInitial()
-    : super(name: '', email: '', password: '', confirmPassword: '');
+    : super(
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        showValidationErrors: false,
+      );
 }
 
 final class RegisterFormChanged extends RegisterState {
@@ -25,6 +33,7 @@ final class RegisterFormChanged extends RegisterState {
     required super.email,
     required super.password,
     required super.confirmPassword,
+    super.showValidationErrors = false,
   });
 }
 
@@ -34,6 +43,7 @@ final class RegisterLoading extends RegisterState {
     required super.email,
     required super.password,
     required super.confirmPassword,
+    super.showValidationErrors = false,
   });
 }
 
@@ -44,6 +54,7 @@ final class RegisterSuccess extends RegisterState {
     required super.email,
     required super.password,
     required super.confirmPassword,
+    super.showValidationErrors = false,
   });
 
   final User user;
@@ -56,6 +67,7 @@ final class RegisterFailure extends RegisterState {
     required super.email,
     required super.password,
     required super.confirmPassword,
+    super.showValidationErrors = false,
   });
 
   final String message;

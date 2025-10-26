@@ -1,6 +1,7 @@
-import 'package:attendify/core/errors/auth_exceptions.dart';
 import 'package:attendify/features/auth/domain/entities/user.dart';
+import 'package:attendify/features/auth/domain/errors/auth_exception.dart';
 import 'package:attendify/features/auth/domain/usecases/register_usecase.dart';
+import 'package:attendify/shared/errors/validation_exception.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'register_event.dart';
@@ -15,6 +16,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     on<RegisterPasswordChanged>(_onPasswordChanged);
     on<RegisterConfirmPasswordChanged>(_onConfirmPasswordChanged);
     on<RegisterSubmitted>(_onRegisterSubmitted);
+    on<RegisterValidationRequested>(_onValidationRequested);
   }
 
   final RegisterUseCase _registerUseCase;
@@ -23,94 +25,130 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     final RegisterNameChanged event,
     final Emitter<RegisterState> emit,
   ) {
-    emit(RegisterFormChanged(
-      name: event.name,
-      email: state.email,
-      password: state.password,
-      confirmPassword: state.confirmPassword,
-    ));
+    emit(
+      RegisterFormChanged(
+        name: event.name,
+        email: state.email,
+        password: state.password,
+        confirmPassword: state.confirmPassword,
+      ),
+    );
   }
 
   void _onEmailChanged(
     final RegisterEmailChanged event,
     final Emitter<RegisterState> emit,
   ) {
-    emit(RegisterFormChanged(
-      name: state.name,
-      email: event.email,
-      password: state.password,
-      confirmPassword: state.confirmPassword,
-    ));
+    emit(
+      RegisterFormChanged(
+        name: state.name,
+        email: event.email,
+        password: state.password,
+        confirmPassword: state.confirmPassword,
+      ),
+    );
   }
 
   void _onPasswordChanged(
     final RegisterPasswordChanged event,
     final Emitter<RegisterState> emit,
   ) {
-    emit(RegisterFormChanged(
-      name: state.name,
-      email: state.email,
-      password: event.password,
-      confirmPassword: state.confirmPassword,
-    ));
+    emit(
+      RegisterFormChanged(
+        name: state.name,
+        email: state.email,
+        password: event.password,
+        confirmPassword: state.confirmPassword,
+      ),
+    );
   }
 
   void _onConfirmPasswordChanged(
     final RegisterConfirmPasswordChanged event,
     final Emitter<RegisterState> emit,
   ) {
-    emit(RegisterFormChanged(
-      name: state.name,
-      email: state.email,
-      password: state.password,
-      confirmPassword: event.confirmPassword,
-    ));
+    emit(
+      RegisterFormChanged(
+        name: state.name,
+        email: state.email,
+        password: state.password,
+        confirmPassword: event.confirmPassword,
+      ),
+    );
   }
 
   Future<void> _onRegisterSubmitted(
     final RegisterSubmitted event,
     final Emitter<RegisterState> emit,
   ) async {
-    emit(RegisterLoading(
-      name: state.name,
-      email: state.email,
-      password: state.password,
-      confirmPassword: state.confirmPassword,
-    ));
+    emit(
+      RegisterLoading(
+        name: state.name,
+        email: state.email,
+        password: state.password,
+        confirmPassword: state.confirmPassword,
+      ),
+    );
 
     try {
-      // проверка совпадения паролей
-      if (state.password != state.confirmPassword) {
-        throw ArgumentError('Пароли не совпадают');
-      }
-
       final user = await _registerUseCase(
         email: state.email,
         password: state.password,
         name: state.name,
+        confirmPassword: state.confirmPassword,
       );
-      emit(RegisterSuccess(
-        user: user,
-        name: state.name,
-        email: state.email,
-        password: state.password,
-        confirmPassword: state.confirmPassword,
-      ));
+      emit(
+        RegisterSuccess(
+          user: user,
+          name: state.name,
+          email: state.email,
+          password: state.password,
+          confirmPassword: state.confirmPassword,
+        ),
+      );
+    } on ValidationException {
+      // если ошибка валидации, показываем в инпутах
+      emit(
+        RegisterFormChanged(
+          name: state.name,
+          email: state.email,
+          password: state.password,
+          confirmPassword: state.confirmPassword,
+          showValidationErrors: true,
+        ),
+      );
     } catch (e) {
-      emit(RegisterFailure(
-        message: _getErrorMessage(e),
+      emit(
+        RegisterFailure(
+          message: _getErrorMessage(e),
+          name: state.name,
+          email: state.email,
+          password: state.password,
+          confirmPassword: state.confirmPassword,
+        ),
+      );
+    }
+  }
+
+  void _onValidationRequested(
+    final RegisterValidationRequested event,
+    final Emitter<RegisterState> emit,
+  ) {
+    emit(
+      RegisterFormChanged(
         name: state.name,
         email: state.email,
         password: state.password,
         confirmPassword: state.confirmPassword,
-      ));
-    }
+        showValidationErrors: true,
+      ),
+    );
   }
 
   String _getErrorMessage(final error) {
     if (error is AuthException) {
       return error.message;
-    } else if (error is ArgumentError) {
+    } else if (error is ValidationException) {
       return error.message;
     }
     return 'Произошла неизвестная ошибка регистрации';

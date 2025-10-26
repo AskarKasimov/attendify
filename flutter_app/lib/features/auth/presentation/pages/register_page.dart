@@ -1,6 +1,7 @@
-import 'package:attendify/core/di/injection_container.dart' as di;
+import 'package:attendify/features/auth/domain/value_objects/auth_value_objects.dart';
 import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:attendify/features/auth/presentation/bloc/register_bloc/register_bloc.dart';
+import 'package:attendify/shared/di/injection_container.dart' as di;
 import 'package:attendify/ui_kit/components/app_button.dart';
 import 'package:attendify/ui_kit/components/app_input.dart';
 import 'package:attendify/ui_kit/theme/app_colors.dart';
@@ -83,6 +84,11 @@ class _RegisterPageContent extends StatelessWidget {
                         label: 'Имя',
                         placeholder: 'Введите ваше имя',
                         prefixIcon: Icons.person_outline,
+                        errorText:
+                            (state.name.isNotEmpty ||
+                                state.showValidationErrors)
+                            ? UserName.validate(state.name)
+                            : null,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -97,6 +103,11 @@ class _RegisterPageContent extends StatelessWidget {
                         placeholder: 'Введите ваш email',
                         keyboardType: TextInputType.emailAddress,
                         prefixIcon: Icons.email_outlined,
+                        errorText:
+                            (state.email.isNotEmpty ||
+                                state.showValidationErrors)
+                            ? Email.validate(state.email)
+                            : null,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -111,6 +122,11 @@ class _RegisterPageContent extends StatelessWidget {
                         placeholder: 'Создайте пароль',
                         obscureText: true,
                         prefixIcon: Icons.lock_outline,
+                        errorText:
+                            (state.password.isNotEmpty ||
+                                state.showValidationErrors)
+                            ? Password.validate(state.password)
+                            : null,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -127,6 +143,14 @@ class _RegisterPageContent extends StatelessWidget {
                         placeholder: 'Повторите пароль',
                         obscureText: true,
                         prefixIcon: Icons.lock_outline,
+                        errorText:
+                            (state.confirmPassword.isNotEmpty ||
+                                state.showValidationErrors)
+                            ? ConfirmPassword.validate(
+                                state.password,
+                                state.confirmPassword,
+                              )
+                            : null,
                       ),
                     ),
                     const SizedBox(height: 32),
