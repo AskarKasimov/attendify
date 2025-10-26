@@ -5,18 +5,15 @@ class AuthAdapter {
   static LoginRequestDto createLoginRequest({
     required final Email email,
     required final Password password,
-  }) => LoginRequestDto(
-      email: email.value,
-      password: password.value,
-    );
+  }) => LoginRequestDto(email: email.value, password: password.value);
 
   static RegisterRequestDto createRegisterRequest({
     required final Email email,
     required final Password password,
     required final UserName name,
   }) => RegisterRequestDto(
-      email: email.value,
-      password: password.value,
-      name: name.value,
-    );
+    email: email.value,
+    password: password.value,
+    name: name.value,
+  );
 }
