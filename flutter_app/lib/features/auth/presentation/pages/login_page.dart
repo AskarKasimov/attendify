@@ -152,6 +152,40 @@ class _LoginPageContent extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+
+            Row(
+              children: [
+                const Expanded(child: Divider()),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'ИЛИ',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+                const Expanded(child: Divider()),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            BlocListener<AuthBloc, AuthState>(
+              listener: (final context, final state) {
+                if (state is AuthAuthenticated) {
+                  context.go('/home');
+                }
+              },
+              child: AppButton.outline(
+                onPressed: () {
+                  context.read<AuthBloc>().add(const AuthenticOAuthLogin());
+                },
+                text: 'Войти через Authentic',
+                isFullWidth: true,
+                icon: Icons.security,
+              ),
+            ),
             const SizedBox(height: 24),
 
             Row(

@@ -16,3 +16,7 @@ final class AuthenticateUser extends AuthEvent {
 final class Logout extends AuthEvent {
   const Logout();
 }
+
+final class AuthenticOAuthLogin extends AuthEvent {
+  const AuthenticOAuthLogin();
+}
