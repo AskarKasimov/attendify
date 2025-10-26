@@ -1,13 +1,11 @@
 import 'package:attendify/features/auth/domain/errors/auth_exception.dart';
-
-import 'package:attendify/features/auth/domain/repositories/auth_repository.dart';
+import 'package:attendify/features/auth/domain/repositories/session_repository.dart';
 
 class LogoutUseCase {
-  const LogoutUseCase(this._repository);
+  const LogoutUseCase(this._sessionRepository);
 
-  final AuthRepository _repository;
+  final SessionRepository _sessionRepository;
 
-  /// Выполнить выход из системы
   /// Throws [AuthException] при ошибке
-  Future<void> call() => _repository.logout();
+  Future<void> call() => _sessionRepository.clearUserSession();
 }

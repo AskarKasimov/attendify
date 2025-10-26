@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:attendify/features/auth/domain/entities/auth_result.dart';
 import 'package:attendify/features/auth/domain/entities/user.dart';
 import 'package:attendify/features/auth/domain/repositories/oauth_repository.dart';
 import 'package:attendify/features/auth/domain/value_objects/auth_value_objects.dart';
@@ -12,7 +13,7 @@ class OAuthRepositoryImpl implements OAuthRepository {
   final FlutterAppAuth _appAuth;
 
   @override
-  Future<User> authenticateWithAuthentic() async {
+  Future<AuthResult> authenticateWithAuthentic() async {
     try {
       final result = await _appAuth.authorizeAndExchangeCode(
         AuthorizationTokenRequest(
@@ -23,14 +24,24 @@ class OAuthRepositoryImpl implements OAuthRepository {
         ),
       );
 
+      if (result.accessToken == null) {
+        throw Exception('No access token received from OAuth provider');
+      }
+
       final userInfo = _parseUserFromIdToken(result.idToken!);
 
-      return User(
+      final user = User(
         id: userInfo['sub'] ?? '',
         email: Email(value: userInfo['email'] ?? ''),
         name: UserName(
           value: userInfo['name'] ?? userInfo['preferred_username'] ?? '',
         ),
+      );
+
+      return AuthResult(
+        user: user,
+        accessToken: result.accessToken!,
+        refreshToken: result.refreshToken, // может быть null
       );
     } catch (e) {
       throw Exception('OAuth authentication failed: $e');
