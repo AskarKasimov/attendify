@@ -1,4 +1,4 @@
-import 'package:attendify/ui_kit/theme/app_colors.dart';
+import 'package:attendify/shared/ui_kit/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 /// спиннер

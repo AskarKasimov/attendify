@@ -1,5 +1,5 @@
-import 'package:attendify/features/auth/domain/errors/auth_exception.dart';
 import 'package:attendify/features/auth/domain/entities/user.dart';
+import 'package:attendify/features/auth/domain/errors/auth_exception.dart';
 import 'package:attendify/features/auth/domain/repositories/auth_repository.dart';
 import 'package:attendify/features/auth/domain/value_objects/auth_value_objects.dart';
 import 'package:attendify/shared/errors/validation_exception.dart';
