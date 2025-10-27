@@ -49,5 +49,18 @@
 		<true/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
+		
+		<!-- OAUTH -->
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleURLName</key>
+				<string>com.askarkasimov.attendify</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>com.askarkasimov.attendify</string>
+				</array>
+			</dict>
+		</array>
 	</dict>
 </plist>

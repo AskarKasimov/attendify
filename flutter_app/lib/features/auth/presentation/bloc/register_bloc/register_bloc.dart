@@ -145,7 +145,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     );
   }
 
-  String _getErrorMessage(final error) {
+  String _getErrorMessage(final Object error) {
     if (error is AuthException) {
       return error.message;
     } else if (error is ValidationException) {
