@@ -20,3 +20,7 @@ final class Logout extends AuthEvent {
 final class AuthenticOAuthLogin extends AuthEvent {
   const AuthenticOAuthLogin();
 }
+
+final class SessionExpired extends AuthEvent {
+  const SessionExpired();
+}

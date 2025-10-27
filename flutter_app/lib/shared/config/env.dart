@@ -5,4 +5,5 @@ class Env {
     defaultValue: '',
   );
   static const issuer = String.fromEnvironment('ISSUER', defaultValue: '');
+  static const baseUrl = String.fromEnvironment('BASE_URL', defaultValue: '');
 }

@@ -1,4 +1,5 @@
 import 'package:attendify/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:attendify/features/auth/data/repositories/mock_auth_repository.dart';
 import 'package:attendify/features/auth/data/repositories/oauth_repository_impl.dart';
 import 'package:attendify/features/auth/data/repositories/secure_storage_impl.dart';
 import 'package:attendify/features/auth/data/repositories/session_repository_impl.dart';
@@ -14,6 +15,9 @@ import 'package:attendify/features/auth/domain/usecases/register_usecase.dart';
 import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:attendify/features/auth/presentation/bloc/logic_bloc/login_bloc.dart';
 import 'package:attendify/features/auth/presentation/bloc/register_bloc/register_bloc.dart';
+import 'package:attendify/shared/network/dio_http_client.dart';
+import 'package:attendify/shared/network/http_client.dart';
+import 'package:attendify/shared/services/auth_event_service.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -27,6 +31,13 @@ Future<void> init() async {
       () => const FlutterSecureStorage(),
     )
     ..registerLazySingleton<FlutterAppAuth>(() => const FlutterAppAuth())
+    ..registerLazySingleton<AuthEventService>(AuthEventService.new)
+    ..registerLazySingleton<HttpClient>(
+      () => DioHttpClient(
+        sessionRepository: sl(),
+        onSessionExpired: () => sl<AuthEventService>().notifySessionExpired(),
+      ),
+    )
     ..registerLazySingleton<SecureStorage>(
       () => SecureStorageImpl(flutterSecureStorage: sl()),
     )
@@ -34,7 +45,8 @@ Future<void> init() async {
     ..registerLazySingleton<SessionRepository>(
       () => SessionRepositoryImpl(secureStorage: sl()),
     )
-    ..registerLazySingleton<AuthRepository>(() => const AuthRepositoryImpl())
+    // ..registerLazySingleton<AuthRepository>(() => const AuthRepositoryImpl())
+    ..registerLazySingleton<AuthRepository>(() => const MockAuthRepository())
     ..registerLazySingleton<OAuthRepository>(() => OAuthRepositoryImpl(sl()))
     // usecases
     ..registerLazySingleton(() => LoginUseCase(sl(), sl()))
@@ -48,6 +60,7 @@ Future<void> init() async {
         logoutUseCase: sl(),
         getCurrentUserUseCase: sl(),
         authenticLoginUseCase: sl(),
+        authEventService: sl(),
       ),
     )
     ..registerFactory(() => LoginBloc(loginUseCase: sl()))
