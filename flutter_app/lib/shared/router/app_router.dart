@@ -3,6 +3,7 @@ import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.da
 import 'package:attendify/features/auth/presentation/pages/login_page.dart';
 import 'package:attendify/features/auth/presentation/pages/register_page.dart';
 import 'package:attendify/features/auth/presentation/pages/splash_screen.dart';
+import 'package:attendify/features/event_create/presentation/pages/event_create_page.dart';
 import 'package:attendify/features/event_join/presentation/pages/event_join_page.dart';
 import 'package:attendify/features/home/presentation/pages/home_page.dart';
 import 'package:attendify/features/scanning/presentation/pages/scanning_page.dart';
@@ -19,6 +20,7 @@ class AppRouter {
   static const String scanning = '/scanning';
   static const String advertising = '/advertising';
   static const String eventJoin = '/event-join';
+  static const String eventCreate = '/event-create';
 
   static GoRouter createRouter(final AuthBloc authBloc) => GoRouter(
     initialLocation: splash,
@@ -64,6 +66,11 @@ class AppRouter {
         path: eventJoin,
         name: 'event-join',
         builder: (final context, final state) => const EventJoinPage(),
+      ),
+      GoRoute(
+        path: eventCreate,
+        name: 'event-create',
+        builder: (final context, final state) => const EventCreatePage(),
       ),
     ],
   );

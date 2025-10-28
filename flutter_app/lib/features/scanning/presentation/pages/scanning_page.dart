@@ -2,7 +2,6 @@ import 'package:attendify/features/scanning/domain/entities/ble_device.dart';
 import 'package:attendify/features/scanning/presentation/bloc/scanning_bloc.dart';
 import 'package:attendify/features/scanning/presentation/bloc/scanning_event.dart';
 import 'package:attendify/features/scanning/presentation/bloc/scanning_state.dart';
-import 'package:attendify/shared/constants/ble_constants.dart';
 import 'package:attendify/shared/di/injection_container.dart';
 import 'package:attendify/shared/ui_kit/components/app_button.dart';
 import 'package:attendify/shared/ui_kit/components/status_card.dart';
@@ -10,6 +9,7 @@ import 'package:attendify/shared/ui_kit/theme/app_colors.dart';
 import 'package:attendify/shared/ui_kit/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class ScanningPage extends StatelessWidget {
   const ScanningPage({super.key});
@@ -25,35 +25,52 @@ class ScanningView extends StatelessWidget {
   const ScanningView({super.key});
 
   @override
-  Widget build(final BuildContext context) => Scaffold(
-    backgroundColor: AppColors.background,
-    appBar: AppBar(
-      title: Text(
-        'Поиск участников',
-        style: AppTextStyles.titleLarge.copyWith(
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w600,
+  Widget build(final BuildContext context) {
+    final extra = GoRouterState.of(context).extra;
+    String? eventId;
+    String? eventPin;
+    if (extra is Map) {
+      eventId = extra['eventId'] as String?;
+      eventPin = extra['eventPin'] as String?;
+    }
+    if (eventId == null ||
+        eventId.isEmpty ||
+        eventPin == null ||
+        eventPin.isEmpty) {
+      throw ArgumentError(
+        'eventId и eventPin должны быть переданы в ScanningPage через extra',
+      );
+    }
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: Text(
+          'Поиск участников',
+          style: AppTextStyles.titleLarge.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: AppColors.background,
+        elevation: 0,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHeader(eventId, eventPin),
+            const SizedBox(height: 24),
+            _buildScanButton(context, eventId, eventPin),
+            const SizedBox(height: 24),
+            Expanded(child: _buildResultsList()),
+          ],
         ),
       ),
-      backgroundColor: AppColors.background,
-      elevation: 0,
-    ),
-    body: Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildHeader(),
-          const SizedBox(height: 24),
-          _buildScanButton(context),
-          const SizedBox(height: 24),
-          Expanded(child: _buildResultsList()),
-        ],
-      ),
-    ),
-  );
+    );
+  }
 
-  Widget _buildHeader() => Card(
+  Widget _buildHeader(final String? eventId, final String? eventPin) => Card(
     elevation: 2,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     child: Padding(
@@ -81,39 +98,66 @@ class ScanningView extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
-              'UUID: ${BleConstants.eventServiceUuid}',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
+            child:
+                (eventId != null &&
+                    eventId.isNotEmpty &&
+                    eventPin != null &&
+                    eventPin.isNotEmpty)
+                ? Column(
+                    children: [
+                      Text(
+                        'ID события: $eventId',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'PIN: $eventPin',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  )
+                : Text(
+                    'Нет данных о событии',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
           ),
         ],
       ),
     ),
   );
 
-  Widget _buildScanButton(final BuildContext context) =>
-      BlocBuilder<ScanningBloc, ScanningState>(
-        builder: (final context, final state) {
-          final isScanning = state is ScanningScanningState;
+  Widget _buildScanButton(
+    final BuildContext context,
+    final String eventId,
+    final String eventPin,
+  ) => BlocBuilder<ScanningBloc, ScanningState>(
+    builder: (final context, final state) {
+      final isScanning = state is ScanningScanningState;
 
-          return AppButton.primary(
-            onPressed: isScanning
-                ? null
-                : () {
-                    context.read<ScanningBloc>().add(
-                      const StartScanningEvent(),
-                    );
-                  },
-            text: isScanning ? 'Поиск в процессе...' : 'Начать поиск',
-            isFullWidth: true,
-            isLoading: isScanning,
-            icon: isScanning ? null : Icons.bluetooth_searching,
-          );
-        },
+      return AppButton.primary(
+        onPressed: isScanning
+            ? null
+            : () {
+                context.read<ScanningBloc>().add(
+                  StartScanningEvent(eventId: eventId, eventPin: eventPin),
+                );
+              },
+        text: isScanning ? 'Поиск в процессе...' : 'Начать поиск',
+        isFullWidth: true,
+        isLoading: isScanning,
+        icon: isScanning ? null : Icons.bluetooth_searching,
       );
+    },
+  );
 
   Widget _buildResultsList() => BlocBuilder<ScanningBloc, ScanningState>(
     builder: (final context, final state) {

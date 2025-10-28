@@ -1,3 +1,7 @@
+import 'package:attendify/features/advertising/data/repositories/advertising_repository_impl.dart';
+import 'package:attendify/features/advertising/domain/repositories/advertising_repository.dart';
+import 'package:attendify/features/advertising/domain/usecases/manage_advertising_usecase.dart';
+import 'package:attendify/features/advertising/presentation/bloc/advertising_bloc.dart';
 import 'package:attendify/features/auth/data/repositories/mock_auth_repository.dart';
 import 'package:attendify/features/auth/data/repositories/oauth_repository_impl.dart';
 import 'package:attendify/features/auth/data/repositories/secure_storage_impl.dart';
@@ -14,18 +18,17 @@ import 'package:attendify/features/auth/domain/usecases/register_usecase.dart';
 import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:attendify/features/auth/presentation/bloc/logic_bloc/login_bloc.dart';
 import 'package:attendify/features/auth/presentation/bloc/register_bloc/register_bloc.dart';
+import 'package:attendify/features/event_create/data/repositories/event_create_repository.dart';
+import 'package:attendify/features/event_create/data/repositories/mock_event_create_repository.dart';
+import 'package:attendify/features/event_create/presentation/bloc/event_create_bloc.dart';
 import 'package:attendify/features/event_join/data/repositories/mock_event_join_repository.dart';
+import 'package:attendify/features/event_join/domain/repositories/event_join_repository.dart';
+import 'package:attendify/features/event_join/domain/usecases/join_event_use_case.dart';
+import 'package:attendify/features/event_join/presentation/bloc/event_join_bloc.dart';
 import 'package:attendify/features/scanning/data/repositories/ble_repository_impl.dart';
 import 'package:attendify/features/scanning/domain/repositories/ble_repository.dart';
 import 'package:attendify/features/scanning/domain/usecases/scan_for_event_devices_usecase.dart';
 import 'package:attendify/features/scanning/presentation/bloc/scanning_bloc.dart';
-import 'package:attendify/features/advertising/data/repositories/advertising_repository_impl.dart';
-import 'package:attendify/features/advertising/domain/repositories/advertising_repository.dart';
-import 'package:attendify/features/advertising/domain/usecases/manage_advertising_usecase.dart';
-import 'package:attendify/features/advertising/presentation/bloc/advertising_bloc.dart';
-import 'package:attendify/features/event_join/domain/repositories/event_join_repository.dart';
-import 'package:attendify/features/event_join/domain/usecases/join_event_use_case.dart';
-import 'package:attendify/features/event_join/presentation/bloc/event_join_bloc.dart';
 import 'package:attendify/shared/network/dio_http_client.dart';
 import 'package:attendify/shared/network/http_client.dart';
 import 'package:attendify/shared/services/auth_event_service.dart';
@@ -73,6 +76,9 @@ Future<void> init() async {
     ..registerLazySingleton<EventJoinRepository>(
       () => const MockEventJoinRepository(),
     )
+    ..registerLazySingleton<EventCreateRepository>(
+      MockEventCreateRepository.new,
+    )
     // usecases
     ..registerLazySingleton(() => LoginUseCase(sl(), sl()))
     ..registerLazySingleton(() => LogoutUseCase(sl()))
@@ -94,6 +100,7 @@ Future<void> init() async {
     ..registerFactory(() => LoginBloc(loginUseCase: sl()))
     ..registerFactory(() => RegisterBloc(registerUseCase: sl()))
     ..registerLazySingleton(() => ScanningBloc(sl()))
-    ..registerLazySingleton(() => AdvertisingBloc(sl(), sl()))
-    ..registerLazySingleton(() => EventJoinBloc(joinEventUseCase: sl()));
+    ..registerLazySingleton(() => AdvertisingBloc(sl()))
+    ..registerLazySingleton(() => EventJoinBloc(joinEventUseCase: sl()))
+    ..registerLazySingleton(() => EventCreateBloc(sl<EventCreateRepository>()));
 }

@@ -2,14 +2,10 @@ import 'package:attendify/features/advertising/domain/entities/advertising_resul
 import 'package:attendify/features/advertising/domain/usecases/manage_advertising_usecase.dart';
 import 'package:attendify/features/advertising/presentation/bloc/advertising_bloc_state.dart';
 import 'package:attendify/features/advertising/presentation/bloc/advertising_event.dart';
-import 'package:attendify/features/event_join/presentation/bloc/event_join_bloc.dart';
-import 'package:attendify/features/event_join/presentation/bloc/event_join_state.dart';
-import 'package:attendify/shared/constants/ble_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// BLoC для управления advertising BLE устройства
 class AdvertisingBloc extends Bloc<AdvertisingEvent, AdvertisingBlocState> {
-  AdvertisingBloc(this._advertisingUseCase, this._eventJoinBloc)
+  AdvertisingBloc(this._advertisingUseCase)
     : super(const AdvertisingInitialState()) {
     on<StartAdvertisingEvent>(_onStartAdvertising);
     on<StopAdvertisingEvent>(_onStopAdvertising);
@@ -17,7 +13,6 @@ class AdvertisingBloc extends Bloc<AdvertisingEvent, AdvertisingBlocState> {
   }
 
   final ManageAdvertisingUseCase _advertisingUseCase;
-  final EventJoinBloc _eventJoinBloc;
 
   Future<void> _onStartAdvertising(
     final StartAdvertisingEvent event,
@@ -25,25 +20,9 @@ class AdvertisingBloc extends Bloc<AdvertisingEvent, AdvertisingBlocState> {
   ) async {
     try {
       emit(const AdvertisingStartingState());
-
-      // Используем UUID из события, из EventJoinBloc или дефолтный
-      String uuid = event.uuid ?? BleConstants.eventServiceUuid;
-      String? eventName;
-      
-      // Если UUID не передан в событии, пробуем получить из EventJoinBloc
-      if (event.uuid == null) {
-        final eventJoinState = _eventJoinBloc.state;
-        if (eventJoinState is EventJoinSuccessState) {
-          uuid = eventJoinState.response.uuid;
-          eventName = eventJoinState.response.eventName;
-        }
-      }
-      
-      final deviceName = event.deviceName ?? eventName ?? BleConstants.defaultDeviceName;
-
       final result = await _advertisingUseCase.startAdvertising(
-        serviceUuidFromApi: uuid,
-        deviceName: deviceName,
+        serviceUuidFromApi: event.uuid,
+        deviceName: event.deviceName,
       );
 
       if (!emit.isDone) {

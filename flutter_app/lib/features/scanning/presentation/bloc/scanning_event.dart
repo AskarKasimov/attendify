@@ -1,14 +1,18 @@
-/// События для BLoC сканирования
 sealed class ScanningEvent {
   const ScanningEvent();
 }
 
-/// Начать сканирование
 class StartScanningEvent extends ScanningEvent {
-  const StartScanningEvent();
+  const StartScanningEvent({
+    required this.eventId,
+    required this.eventPin,
+    this.timeout,
+  });
+  final String eventId;
+  final String eventPin;
+  final Duration? timeout;
 }
 
-/// Очистить результаты
 class ClearResultsEvent extends ScanningEvent {
   const ClearResultsEvent();
 }

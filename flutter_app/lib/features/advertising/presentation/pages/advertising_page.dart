@@ -27,6 +27,7 @@ class AdvertisingView extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) => Scaffold(
+    resizeToAvoidBottomInset: false,
     backgroundColor: AppColors.background,
     appBar: AppBar(
       title: Text(
@@ -134,45 +135,58 @@ class AdvertisingView extends StatelessWidget {
     ),
   );
 
-  Widget _buildAdvertisingButton(final BuildContext context) =>
-      BlocBuilder<AdvertisingBloc, AdvertisingBlocState>(
-        builder: (final context, final state) {
-          final isActive = state is AdvertisingActiveState;
-          final isStarting = state is AdvertisingStartingState;
-          final isStopping = state is AdvertisingStoppingState;
-          final isProcessing = isStarting || isStopping;
+  Widget _buildAdvertisingButton(
+    final BuildContext context,
+  ) => BlocBuilder<AdvertisingBloc, AdvertisingBlocState>(
+    builder: (final context, final state) {
+      final isActive = state is AdvertisingActiveState;
+      final isStarting = state is AdvertisingStartingState;
+      final isStopping = state is AdvertisingStoppingState;
+      final isProcessing = isStarting || isStopping;
 
-          if (isActive) {
-            return AppButton.important(
-              onPressed: isProcessing
-                  ? null
-                  : () {
-                      context.read<AdvertisingBloc>().add(
-                        const StopAdvertisingEvent(),
-                      );
-                    },
-              text: _getButtonText(state),
-              isLoading: isStopping,
-              isFullWidth: true,
-              icon: Icons.stop,
-            );
-          }
+      if (isActive) {
+        return AppButton.important(
+          onPressed: isProcessing
+              ? null
+              : () {
+                  context.read<AdvertisingBloc>().add(
+                    const StopAdvertisingEvent(),
+                  );
+                },
+          text: _getButtonText(state),
+          isLoading: isStopping,
+          isFullWidth: true,
+          icon: Icons.stop,
+        );
+      }
 
-          return AppButton.primary(
-            onPressed: isProcessing
-                ? null
-                : () {
-                    context.read<AdvertisingBloc>().add(
-                      const StartAdvertisingEvent(),
-                    );
-                  },
-            text: _getButtonText(state),
-            isLoading: isStarting,
-            isFullWidth: true,
-            icon: Icons.radio_button_checked,
-          );
-        },
+      return AppButton.primary(
+        onPressed: isProcessing
+            ? null
+            : () {
+                final eventJoinState = sl<EventJoinBloc>().state;
+                if (eventJoinState is EventJoinSuccessState) {
+                  final uuid = eventJoinState.response.uuid;
+                  context.read<AdvertisingBloc>().add(
+                    StartAdvertisingEvent(uuid: uuid, deviceName: null),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Нет данных для запуска маяка: отсутствует deviceUuid',
+                      ),
+                    ),
+                  );
+                }
+              },
+        text: _getButtonText(state),
+        isLoading: isStarting,
+        isFullWidth: true,
+        icon: Icons.radio_button_checked,
       );
+    },
+  );
 
   Widget
   _buildStatusArea() => BlocBuilder<AdvertisingBloc, AdvertisingBlocState>(

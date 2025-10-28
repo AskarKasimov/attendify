@@ -75,7 +75,7 @@ class HomePage extends StatelessWidget {
                       description: 'Найти другие устройства',
                       isPrimary: true,
                       onTap: () async {
-                        await context.push('/scanning');
+                        await context.push('/event-create');
                       },
                     ),
                     const SizedBox(height: 12),

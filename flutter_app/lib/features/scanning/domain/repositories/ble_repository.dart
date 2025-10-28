@@ -14,10 +14,10 @@ abstract class BleRepository {
   Stream<BluetoothState> get bluetoothStateStream;
 
   /// Сканировать устройства с определенным UUID сервиса
-  /// [serviceUuid] - UUID сервиса, который придет из API
+  /// [serviceUuid] - UUID сервиса, который придет из API. Если не указан, сканируются все устройства
   /// Возвращает список найденных устройств
   Future<List<BleDevice>> scanForDevices({
-    required final String serviceUuid,
+    String? serviceUuid,
     final Duration timeout = const Duration(seconds: 10),
   });
 

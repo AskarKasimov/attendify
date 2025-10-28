@@ -29,6 +29,7 @@ class EventJoinView extends StatelessWidget {
   Widget build(final BuildContext context) => GestureDetector(
     onTap: () => FocusScope.of(context).unfocus(),
     child: Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(

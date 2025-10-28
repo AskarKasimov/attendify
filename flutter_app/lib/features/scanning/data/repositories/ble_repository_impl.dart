@@ -75,11 +75,13 @@ class BleRepositoryImpl implements BleRepository {
 
   @override
   Future<List<BleDevice>> scanForDevices({
-    required final String serviceUuid,
+    final String? serviceUuid,
     final Duration timeout = const Duration(seconds: 10),
   }) async {
     try {
-      _log('Starting scan for service UUID from API: $serviceUuid');
+      _log(
+        'Starting scan${serviceUuid != null ? ' for service UUID from API: $serviceUuid' : ' for all devices'}',
+      );
 
       // Запрашиваем разрешения (как в рабочем коде)
       await checkAndRequestPermissions();
@@ -117,20 +119,25 @@ class BleRepositoryImpl implements BleRepository {
       // Получаем результаты
       final results = await fbp.FlutterBluePlus.scanResults.first;
 
-      final filteredDevices = results
-          .where((final result) {
-            final uuids = result.advertisementData.serviceUuids.map(
-              (final g) => g.toString().toLowerCase(),
-            );
-            return uuids.contains(serviceUuid.toLowerCase());
-          })
-          .map(_mapScanResultToDevice)
-          .toList();
+      List<BleDevice> devices;
+      if (serviceUuid != null && serviceUuid.isNotEmpty) {
+        devices = results
+            .where((final result) {
+              final uuids = result.advertisementData.serviceUuids.map(
+                (final g) => g.toString().toLowerCase(),
+              );
+              return uuids.contains(serviceUuid.toLowerCase());
+            })
+            .map(_mapScanResultToDevice)
+            .toList();
+      } else {
+        devices = results.map(_mapScanResultToDevice).toList();
+      }
 
       await stopScan();
-      _log('Scan completed, found ${filteredDevices.length} devices');
+      _log('Scan completed, found ${devices.length} devices');
 
-      return filteredDevices;
+      return devices;
     } catch (e) {
       _log('Scan error: $e');
       await stopScan();

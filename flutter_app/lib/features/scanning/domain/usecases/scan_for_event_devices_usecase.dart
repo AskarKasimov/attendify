@@ -9,12 +9,12 @@ class ScanForEventDevicesUseCase {
 
   /// Запустить сканирование устройств события
   ///
-  /// [serviceUuidFromApi] - UUID сервиса, полученный из API
+  /// [serviceUuidFromApi] - UUID сервиса, полученный из API. Если не указан, сканируются все устройства
   /// [timeout] - максимальное время сканирования
   ///
   /// Возвращает список найденных устройств
   Future<List<BleDevice>> call({
-    required final String serviceUuidFromApi,
+    String? serviceUuidFromApi,
     final Duration timeout = const Duration(seconds: 10),
   }) => _repository.scanForDevices(
     serviceUuid: serviceUuidFromApi,
