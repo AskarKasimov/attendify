@@ -36,8 +36,6 @@ class AdvertisingRepositoryImpl implements AdvertisingRepository {
     }
   }
 
-  // === Управление разрешениями ===
-
   @override
   Future<bool> checkAndRequestPermissions() async {
     try {
@@ -48,14 +46,12 @@ class AdvertisingRepositoryImpl implements AdvertisingRepository {
         Permission.location,
       ].request();
 
-      return true; // В рабочем коде не проверяли статус, просто запрашивали
+      return true;
     } catch (e) {
       _log('Error requesting permissions: $e');
       return false;
     }
   }
-
-  // === Состояние Bluetooth ===
 
   @override
   Future<domain.BluetoothState> get bluetoothState async {
@@ -88,16 +84,12 @@ class AdvertisingRepositoryImpl implements AdvertisingRepository {
     }
   }
 
-  // === Состояние Advertising ===
-
   @override
   Future<AdvertisingState> get advertisingState async => _currentState;
 
   @override
   Stream<AdvertisingState> get advertisingStateStream =>
       _advertisingStateController.stream;
-
-  // === Advertising ===
 
   @override
   Future<AdvertisingResult> startAdvertising({
@@ -114,9 +106,28 @@ class AdvertisingRepositoryImpl implements AdvertisingRepository {
       _updateState(AdvertisingState.starting);
       _log('Starting advertising with UUID from API: $serviceUuid');
 
-      await checkAndRequestPermissions(); // Просто запрашиваем, не проверяем результат как в рабочем коде
+      await checkAndRequestPermissions();
 
-      // Авторизация для Android (как в рабочем коде)
+      // текущее состояние Bluetooth перед началом
+      _log('Checking initial BLE state: ${_peripheral.state}');
+      if (_peripheral.state == ble.BluetoothLowEnergyState.poweredOff) {
+        _updateState(AdvertisingState.error);
+        return const AdvertisingError(
+          'Bluetooth выключен. Включите Bluetooth в настройках устройства.',
+        );
+      } else if (_peripheral.state ==
+          ble.BluetoothLowEnergyState.unauthorized) {
+        _updateState(AdvertisingState.error);
+        return const AdvertisingError(
+          'Нет разрешений для Bluetooth. Проверьте настройки приложения.',
+        );
+      } else if (_peripheral.state == ble.BluetoothLowEnergyState.unsupported) {
+        _updateState(AdvertisingState.error);
+        return const AdvertisingError(
+          'Устройство не поддерживает Bluetooth LE.',
+        );
+      }
+
       if (Platform.isAndroid) {
         try {
           final authorized = await _peripheral.authorize();
@@ -137,27 +148,88 @@ class AdvertisingRepositoryImpl implements AdvertisingRepository {
         serviceUUIDs: [ble.UUID.fromString(serviceUuid)],
       );
 
-      // Ждем готовности Bluetooth (особенно важно для iOS)
-      if (Platform.isIOS) {
-        // На iOS обязательно ждать включения Bluetooth
-        if (_peripheral.state != ble.BluetoothLowEnergyState.poweredOn) {
-          _log('Waiting for Bluetooth to be powered on...');
-          await for (final stateChange in _peripheral.stateChanged) {
-            _log('BLE state changed to: ${stateChange.state}');
-            if (stateChange.state == ble.BluetoothLowEnergyState.poweredOn) {
-              break;
+      _log('Current BLE state: ${_peripheral.state}');
+      if (_peripheral.state != ble.BluetoothLowEnergyState.poweredOn) {
+        _log('Waiting for Bluetooth to be powered on...');
+
+        final completer = Completer<void>();
+        late StreamSubscription subscription;
+
+        final timeoutTimer = Timer(const Duration(seconds: 2), () async {
+          if (!completer.isCompleted) {
+            await subscription.cancel();
+            completer.completeError(
+              'Bluetooth не включился в течение 2 секунд',
+            );
+          }
+        });
+
+        subscription = _peripheral.stateChanged.listen((
+          final stateChange,
+        ) async {
+          _log('BLE state changed to: ${stateChange.state}');
+          if (stateChange.state == ble.BluetoothLowEnergyState.poweredOn) {
+            if (!completer.isCompleted) {
+              timeoutTimer.cancel();
+              await subscription.cancel();
+              completer.complete();
+            }
+          } else if (stateChange.state ==
+                  ble.BluetoothLowEnergyState.poweredOff ||
+              stateChange.state == ble.BluetoothLowEnergyState.unauthorized) {
+            if (!completer.isCompleted) {
+              timeoutTimer.cancel();
+              await subscription.cancel();
+              completer.completeError('Bluetooth выключен или нет разрешений');
             }
           }
+        });
+
+        try {
+          await completer.future;
+          _log('Bluetooth is now powered on');
+        } catch (e) {
+          _updateState(AdvertisingState.error);
+          return AdvertisingError('Bluetooth недоступен: $e');
         }
       }
 
-      await Future.delayed(const Duration(milliseconds: 500));
-      await _peripheral.startAdvertising(advertisement);
+      _log(
+        'Starting advertising with advertisement: name=$finalDeviceName, serviceUUID=$serviceUuid',
+      );
 
-      _updateState(AdvertisingState.active);
-      _log('Advertising started successfully');
+      try {
+        await Future.delayed(const Duration(milliseconds: 500));
+        await _peripheral.startAdvertising(advertisement);
 
-      return AdvertisingStarted(serviceUuid, finalDeviceName);
+        _log('Advertising API call completed');
+
+        // Даем немного времени на запуск и проверяем состояние
+        await Future.delayed(const Duration(milliseconds: 1000));
+
+        _updateState(AdvertisingState.active);
+        _log('Advertising started successfully');
+
+        return AdvertisingStarted(serviceUuid, finalDeviceName);
+      } catch (advertisingError) {
+        _log('Advertising failed with error: $advertisingError');
+        _updateState(AdvertisingState.error);
+
+        if (advertisingError.toString().contains('already advertising') ||
+            advertisingError.toString().contains('operation in progress')) {
+          return const AdvertisingError(
+            'Advertising уже активен. Остановите текущий advertising перед запуском нового.',
+          );
+        } else if (advertisingError.toString().contains('not supported')) {
+          return const AdvertisingError(
+            'Advertising не поддерживается на этом устройстве.',
+          );
+        } else {
+          return AdvertisingError(
+            'Ошибка запуска advertising: $advertisingError',
+          );
+        }
+      }
     } catch (e) {
       _updateState(AdvertisingState.error);
       _log('Error starting advertising: $e');
@@ -199,8 +271,6 @@ class AdvertisingRepositoryImpl implements AdvertisingRepository {
 
   @override
   Future<bool> get isAdvertising async => _currentState.isActive;
-
-  // === Утилиты ===
 
   @override
   Future<void> reset() async {

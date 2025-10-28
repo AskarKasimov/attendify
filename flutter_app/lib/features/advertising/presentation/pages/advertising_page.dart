@@ -1,7 +1,8 @@
 import 'package:attendify/features/advertising/presentation/bloc/advertising_bloc.dart';
 import 'package:attendify/features/advertising/presentation/bloc/advertising_bloc_state.dart';
 import 'package:attendify/features/advertising/presentation/bloc/advertising_event.dart';
-import 'package:attendify/shared/constants/ble_constants.dart';
+import 'package:attendify/features/event_join/presentation/bloc/event_join_bloc.dart';
+import 'package:attendify/features/event_join/presentation/bloc/event_join_state.dart';
 import 'package:attendify/shared/di/injection_container.dart';
 import 'package:attendify/shared/ui_kit/components/app_button.dart';
 import 'package:attendify/shared/ui_kit/components/app_components.dart';
@@ -74,32 +75,59 @@ class AdvertisingView extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 8),
+          Text(
+            'Ваше устройство будет видно другим участникам события',
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  'UUID: ${BleConstants.eventServiceUuid}',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+          BlocBuilder<EventJoinBloc, EventJoinState>(
+            bloc: sl<EventJoinBloc>(),
+            builder: (final context, final state) {
+              if (state is EventJoinSuccessState) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Имя: ${BleConstants.defaultDeviceName}',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.2),
+                    ),
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'PIN код события',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        state.pin
+                            .replaceAllMapped(
+                              RegExp(r'(\d)'),
+                              (final match) => '${match.group(1)} ',
+                            )
+                            .trim(),
+                        style: AppTextStyles.headlineSmall.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 4,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
         ],
       ),
@@ -185,22 +213,10 @@ class AdvertisingView extends StatelessWidget {
           child: StatusCard(
             icon: Icons.radio_button_checked,
             title: 'Маячок активен!',
-            subtitle: 'Другие участники могут найти вас',
+            subtitle: 'Хост может подтвердить ваше присутствие',
             iconColor: AppColors.primary,
             titleColor: AppColors.primary,
             backgroundColor: AppColors.primary.withValues(alpha: 0.05),
-            details: [
-              StatusDetail(
-                icon: Icons.info,
-                text: 'Устройство: ${state.deviceName}',
-                iconColor: AppColors.primary,
-              ),
-              StatusDetail(
-                icon: Icons.radio,
-                text: 'UUID: ${state.serviceUuid}',
-                iconColor: AppColors.primary,
-              ),
-            ],
           ),
         );
       }

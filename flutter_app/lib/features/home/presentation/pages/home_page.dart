@@ -82,10 +82,10 @@ class HomePage extends StatelessWidget {
                     ActionCard(
                       icon: Icons.radio_button_checked,
                       title: 'Стать маяком',
-                      description: 'Сделать устройство видимым',
+                      description: 'Введите PIN код для присоединения',
                       isPrimary: true,
                       onTap: () async {
-                        await context.push('/advertising');
+                        await context.push('/event-join');
                       },
                     ),
                     const SizedBox(height: 16),

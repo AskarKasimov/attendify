@@ -14,6 +14,7 @@ import 'package:attendify/features/auth/domain/usecases/register_usecase.dart';
 import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:attendify/features/auth/presentation/bloc/logic_bloc/login_bloc.dart';
 import 'package:attendify/features/auth/presentation/bloc/register_bloc/register_bloc.dart';
+import 'package:attendify/features/event_join/data/repositories/mock_event_join_repository.dart';
 import 'package:attendify/features/scanning/data/repositories/ble_repository_impl.dart';
 import 'package:attendify/features/scanning/domain/repositories/ble_repository.dart';
 import 'package:attendify/features/scanning/domain/usecases/scan_for_event_devices_usecase.dart';
@@ -22,6 +23,9 @@ import 'package:attendify/features/advertising/data/repositories/advertising_rep
 import 'package:attendify/features/advertising/domain/repositories/advertising_repository.dart';
 import 'package:attendify/features/advertising/domain/usecases/manage_advertising_usecase.dart';
 import 'package:attendify/features/advertising/presentation/bloc/advertising_bloc.dart';
+import 'package:attendify/features/event_join/domain/repositories/event_join_repository.dart';
+import 'package:attendify/features/event_join/domain/usecases/join_event_use_case.dart';
+import 'package:attendify/features/event_join/presentation/bloc/event_join_bloc.dart';
 import 'package:attendify/shared/network/dio_http_client.dart';
 import 'package:attendify/shared/network/http_client.dart';
 import 'package:attendify/shared/services/auth_event_service.dart';
@@ -63,6 +67,12 @@ Future<void> init() async {
       final repo = AdvertisingRepositoryImpl()..setLoggingEnabled(true);
       return repo;
     })
+    // ..registerLazySingleton<EventJoinRepository>(
+    //   () => EventJoinRepositoryImpl(sl()),
+    // )
+    ..registerLazySingleton<EventJoinRepository>(
+      () => const MockEventJoinRepository(),
+    )
     // usecases
     ..registerLazySingleton(() => LoginUseCase(sl(), sl()))
     ..registerLazySingleton(() => LogoutUseCase(sl()))
@@ -71,6 +81,7 @@ Future<void> init() async {
     ..registerLazySingleton(() => AuthenticLoginUseCase(sl(), sl()))
     ..registerLazySingleton(() => ScanForEventDevicesUseCase(sl()))
     ..registerLazySingleton(() => ManageAdvertisingUseCase(sl()))
+    ..registerLazySingleton(() => JoinEventUseCase(sl()))
     // blocs
     ..registerFactory(
       () => AuthBloc(
@@ -82,7 +93,7 @@ Future<void> init() async {
     )
     ..registerFactory(() => LoginBloc(loginUseCase: sl()))
     ..registerFactory(() => RegisterBloc(registerUseCase: sl()))
-    // BLE blocs - синглтоны для сохранения состояния между переходами
     ..registerLazySingleton(() => ScanningBloc(sl()))
-    ..registerLazySingleton(() => AdvertisingBloc(sl()));
+    ..registerLazySingleton(() => AdvertisingBloc(sl(), sl()))
+    ..registerLazySingleton(() => EventJoinBloc(joinEventUseCase: sl()));
 }

@@ -5,7 +5,10 @@ sealed class AdvertisingEvent {
 
 /// Начать advertising
 class StartAdvertisingEvent extends AdvertisingEvent {
-  const StartAdvertisingEvent();
+  const StartAdvertisingEvent({this.uuid, this.deviceName});
+  
+  final String? uuid;
+  final String? deviceName;
 }
 
 /// Остановить advertising
