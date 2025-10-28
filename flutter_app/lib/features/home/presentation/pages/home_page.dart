@@ -70,30 +70,22 @@ class HomePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     ActionCard(
-                      icon: Icons.add_circle_outline,
-                      title: 'Создать событие',
-                      description: 'Новое мероприятие для отметок',
+                      icon: Icons.bluetooth_searching,
+                      title: 'Сканировать',
+                      description: 'Найти другие устройства',
                       isPrimary: true,
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Создание события - в разработке'),
-                          ),
-                        );
+                      onTap: () async {
+                        await context.push('/scanning');
                       },
                     ),
                     const SizedBox(height: 12),
                     ActionCard(
-                      icon: Icons.qr_code_scanner,
-                      title: 'Отметиться',
-                      description: 'Сканировать QR код события',
+                      icon: Icons.radio_button_checked,
+                      title: 'Стать маяком',
+                      description: 'Сделать устройство видимым',
                       isPrimary: true,
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('QR сканер - в разработке'),
-                          ),
-                        );
+                      onTap: () async {
+                        await context.push('/advertising');
                       },
                     ),
                     const SizedBox(height: 16),
@@ -119,8 +111,8 @@ class HomePage extends StatelessWidget {
                           child: MiniActionCard(
                             icon: Icons.settings_outlined,
                             title: 'Настройки',
-                            onTap: () {
-                              context.go('/settings');
+                            onTap: () async {
+                              await context.push('/settings');
                             },
                           ),
                         ),

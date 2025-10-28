@@ -30,6 +30,7 @@ class _RegisterPageContent extends StatelessWidget {
   @override
   Widget build(final BuildContext context) => Scaffold(
     backgroundColor: AppColors.background,
+    resizeToAvoidBottomInset: false,
     appBar: AppBar(
       leading: IconButton(
         onPressed: () async {

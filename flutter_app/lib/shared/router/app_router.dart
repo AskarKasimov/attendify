@@ -1,8 +1,10 @@
+import 'package:attendify/features/advertising/presentation/pages/advertising_page.dart';
 import 'package:attendify/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:attendify/features/auth/presentation/pages/login_page.dart';
 import 'package:attendify/features/auth/presentation/pages/register_page.dart';
 import 'package:attendify/features/auth/presentation/pages/splash_screen.dart';
 import 'package:attendify/features/home/presentation/pages/home_page.dart';
+import 'package:attendify/features/scanning/presentation/pages/scanning_page.dart';
 import 'package:attendify/features/settings/presentation/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +15,8 @@ class AppRouter {
   static const String register = '/register';
   static const String home = '/home';
   static const String settings = '/settings';
+  static const String scanning = '/scanning';
+  static const String advertising = '/advertising';
 
   static GoRouter createRouter(final AuthBloc authBloc) => GoRouter(
     initialLocation: splash,
@@ -43,6 +47,16 @@ class AppRouter {
         path: settings,
         name: 'settings',
         builder: (final context, final state) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: scanning,
+        name: 'scanning',
+        builder: (final context, final state) => const ScanningPage(),
+      ),
+      GoRoute(
+        path: advertising,
+        name: 'advertising',
+        builder: (final context, final state) => const AdvertisingPage(),
       ),
     ],
   );

@@ -30,6 +30,7 @@ class _LoginPageContent extends StatelessWidget {
   @override
   Widget build(final BuildContext context) => Scaffold(
     backgroundColor: AppColors.background,
+    resizeToAvoidBottomInset: false,
     body: SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(24),
